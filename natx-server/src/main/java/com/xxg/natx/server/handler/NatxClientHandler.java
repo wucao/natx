@@ -5,6 +5,8 @@ import com.xxg.natx.server.net.TcpServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -28,11 +30,17 @@ public class NatxClientHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof RegisterInfo) {
             RegisterInfo registerInfo = (RegisterInfo) msg;
 
-            remoteConnectionHandler = new RemoteConnectionHandler();
-            remoteConnectionHandler.setNatxClientHandler(this);
-
+            final NatxClientHandler thisNatxClientHandler = this;
             TcpServer remoteConnectionServer = new TcpServer();
-            remoteConnectionServer.bind(registerInfo.getPort(), remoteConnectionHandler);
+            remoteConnectionServer.bind(registerInfo.getPort(), new ChannelInitializer<SocketChannel>() {
+                @Override
+                public void initChannel(SocketChannel ch)
+                        throws Exception {
+                    remoteConnectionHandler = new RemoteConnectionHandler();
+                    remoteConnectionHandler.setNatxClientHandler(thisNatxClientHandler);
+                    ch.pipeline().addLast(remoteConnectionHandler);
+                }
+            });
         } else {
             remoteConnectionHandler.writeBytes((byte[]) msg);
         }

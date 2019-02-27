@@ -11,7 +11,7 @@ public class NatxClient {
 
     public static void main(String[] args) throws InterruptedException {
 
-        NatxServerHandler natxServerHandler = new NatxServerHandler(10000, "qwertyui");
+        NatxServerHandler natxServerHandler = new NatxServerHandler(10001, "qwertyui");
         LocalServerHandler localServerHandler = new LocalServerHandler();
         natxServerHandler.setLocalServerHandler(localServerHandler);
         localServerHandler.setNatxServerHandler(natxServerHandler);

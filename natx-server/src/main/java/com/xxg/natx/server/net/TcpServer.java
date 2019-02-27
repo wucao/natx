@@ -11,7 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  */
 public class TcpServer {
 
-    public void bind(int port, final ChannelHandler ... handler) throws InterruptedException {
+    public void bind(int port, ChannelInitializer channelInitializer) throws InterruptedException {
 
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -19,13 +19,7 @@ public class TcpServer {
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel ch)
-                            throws Exception {
-                        ch.pipeline().addLast(handler);
-                    }
-                });
+                .childHandler(channelInitializer);
         ChannelFuture f = b.bind(port);
         f.channel().closeFuture().addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture future) throws Exception {
