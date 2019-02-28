@@ -12,13 +12,16 @@ import io.netty.channel.socket.SocketChannel;
  */
 public class NatxClientHandler extends NatxProxyHandler {
 
+    private TcpServer remoteConnectionServer = new TcpServer();
+
+    private RegisterInfo registerInfo;
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof RegisterInfo) {
-            RegisterInfo registerInfo = (RegisterInfo) msg;
+            registerInfo = (RegisterInfo) msg;
 
             final NatxClientHandler thisNatxClientHandler = this;
-            TcpServer remoteConnectionServer = new TcpServer();
             remoteConnectionServer.bind(registerInfo.getPort(), new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch)
@@ -29,9 +32,17 @@ public class NatxClientHandler extends NatxProxyHandler {
                     ch.pipeline().addLast(remoteConnectionHandler);
                 }
             });
+            System.out.println("Start server on port: " + registerInfo.getPort());
         } else {
             super.channelRead(ctx, msg);
         }
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        remoteConnectionServer.close();
+        if (registerInfo != null) {
+            System.out.println("Stop server on port: " + registerInfo.getPort());
+        }
+    }
 }

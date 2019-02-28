@@ -25,11 +25,6 @@ public class TcpConnection {
             }
         });
         ChannelFuture f = b.connect(host, port).sync();
-        f.channel().closeFuture().addListener(new ChannelFutureListener() {
-            public void operationComplete(ChannelFuture future) throws Exception {
-                workerGroup.shutdownGracefully();
-            }
-        });
+        f.channel().closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
     }
-
 }
