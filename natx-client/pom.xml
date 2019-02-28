@@ -12,5 +12,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>natx-client</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.xxg</groupId>
+            <artifactId>natx-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>
