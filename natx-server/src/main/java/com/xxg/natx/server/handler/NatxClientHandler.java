@@ -1,12 +1,16 @@
 package com.xxg.natx.server.handler;
 
+import com.xxg.natx.common.codec.MessageInfo;
 import com.xxg.natx.common.codec.RegisterInfo;
 import com.xxg.natx.common.handler.NatxProxyHandler;
 import com.xxg.natx.server.net.TcpServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.json.JSONObject;
 
 /**
@@ -15,6 +19,8 @@ import org.json.JSONObject;
 public class NatxClientHandler extends NatxProxyHandler {
 
     private TcpServer remoteConnectionServer = new TcpServer();
+
+    private static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     private RegisterInfo registerInfo;
 
@@ -43,6 +49,7 @@ public class NatxClientHandler extends NatxProxyHandler {
                         @Override
                         public void initChannel(SocketChannel ch)
                                 throws Exception {
+                            channels.add(ch);
                             NatxProxyHandler remoteConnectionHandler = new NatxClientHandler();
                             remoteConnectionHandler.setNatxProxyHandler(thisNatxClientHandler);
                             setNatxProxyHandler(remoteConnectionHandler);
@@ -71,7 +78,8 @@ public class NatxClientHandler extends NatxProxyHandler {
                 ctx.close();
             }
         } else {
-            super.channelRead(ctx, msg);
+            MessageInfo messageInfo = (MessageInfo) msg;
+            channels.writeAndFlush(messageInfo.getData(), channel -> channel.id().asLongText().equals(messageInfo.getChannelId()));
         }
     }
 
