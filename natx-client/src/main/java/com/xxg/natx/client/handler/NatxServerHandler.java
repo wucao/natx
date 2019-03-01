@@ -1,5 +1,6 @@
 package com.xxg.natx.client.handler;
 
+import com.xxg.natx.common.codec.RegisterResultInfo;
 import com.xxg.natx.common.handler.NatxProxyHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,5 +33,21 @@ public class NatxServerHandler extends NatxProxyHandler {
         ctx.writeAndFlush(out);
 
         super.channelActive(ctx);
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (msg instanceof RegisterResultInfo) {
+            RegisterResultInfo registerResultInfo = (RegisterResultInfo) msg;
+
+            if (!registerResultInfo.getSuccess()) {
+                System.out.println("Register fail: " + registerResultInfo.getMessage());
+                ctx.close();
+            } else {
+                System.out.println("Register to Natx server");
+            }
+        } else {
+            super.channelRead(ctx, msg);
+        }
     }
 }

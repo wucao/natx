@@ -1,6 +1,5 @@
-package com.xxg.natx.server.handler;
+package com.xxg.natx.common.codec;
 
-import com.xxg.natx.common.RegisterInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

@@ -1,4 +1,4 @@
-package com.xxg.natx.common;
+package com.xxg.natx.common.codec;
 
 /**
  * Created by wucao on 2019/2/28.

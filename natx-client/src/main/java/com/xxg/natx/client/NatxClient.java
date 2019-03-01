@@ -2,6 +2,7 @@ package com.xxg.natx.client;
 
 import com.xxg.natx.client.handler.NatxServerHandler;
 import com.xxg.natx.client.net.TcpConnection;
+import com.xxg.natx.common.codec.NatxRegisterResultDecoder;
 import com.xxg.natx.common.handler.NatxProxyHandler;
 
 /**
@@ -11,13 +12,13 @@ public class NatxClient {
 
     public static void main(String[] args) throws InterruptedException {
 
-        NatxServerHandler natxServerHandler = new NatxServerHandler(10001, "qwertyui");
+        NatxServerHandler natxServerHandler = new NatxServerHandler(10001, "123456");
         NatxProxyHandler localServerHandler = new NatxProxyHandler();
         natxServerHandler.setNatxProxyHandler(localServerHandler);
         localServerHandler.setNatxProxyHandler(natxServerHandler);
 
         TcpConnection natxConnection = new TcpConnection();
-        natxConnection.connect("localhost", 7731, natxServerHandler);
+        natxConnection.connect("localhost", 7732, new NatxRegisterResultDecoder(), natxServerHandler);
 
         TcpConnection localConnection = new TcpConnection();
         localConnection.connect("localhost", 8000, localServerHandler);

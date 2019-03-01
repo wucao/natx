@@ -11,7 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public class TcpConnection {
 
-    public void connect(String host, int port, final ChannelHandler handler) throws InterruptedException {
+    public void connect(String host, int port, final ChannelHandler ... handler) throws InterruptedException {
 
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
