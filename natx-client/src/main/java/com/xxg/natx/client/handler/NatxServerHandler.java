@@ -1,6 +1,6 @@
 package com.xxg.natx.client.handler;
 
-import com.xxg.natx.client.net.TcpConnection;
+import com.xxg.natx.client.net.ProxyRetryConnection;
 import com.xxg.natx.common.codec.RegisterResultInfo;
 import com.xxg.natx.common.handler.NatxProxyHandler;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +19,7 @@ public class NatxServerHandler extends NatxProxyHandler {
     private String proxyAddress;
     private int proxyPort;
 
-    private TcpConnection localConnection = new TcpConnection();;
+    private ProxyRetryConnection localConnection = new ProxyRetryConnection();;
 
     public NatxServerHandler(int port, String token, String proxyAddress, int proxyPort) {
         this.port = port;

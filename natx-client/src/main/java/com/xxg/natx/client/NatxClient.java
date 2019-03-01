@@ -12,7 +12,7 @@ import org.apache.commons.cli.*;
  */
 public class NatxClient {
 
-    public static void main(String[] args) throws InterruptedException, ParseException {
+    public static void main(String[] args) throws Exception {
 
         // args
         Options options = new Options();

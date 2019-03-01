@@ -5,6 +5,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.io.IOException;
+
 /**
  * Created by wucao on 2019/2/27.
  */
@@ -12,8 +14,21 @@ public class TcpConnection {
 
     private Channel channel;
 
-    public synchronized void connect(String host, int port, ChannelInitializer channelInitializer) throws InterruptedException {
+    private boolean close = false;
 
+    /**
+     *
+     * @param host
+     * @param port
+     * @param channelInitializer
+     * @return channel close future
+     * @throws InterruptedException
+     */
+    public synchronized ChannelFuture connect(String host, int port, ChannelInitializer channelInitializer) throws InterruptedException, IOException {
+
+        if (close) {
+            throw new IOException("Tcp connection closed");
+        }
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
@@ -23,7 +38,7 @@ public class TcpConnection {
             b.handler(channelInitializer);
 
             channel = b.connect(host, port).sync().channel();
-            channel.closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
+            return channel.closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
         } catch (Exception e) {
             workerGroup.shutdownGracefully();
             throw e;
@@ -34,5 +49,6 @@ public class TcpConnection {
         if (channel != null) {
             channel.close();
         }
+        close = true;
     }
 }
