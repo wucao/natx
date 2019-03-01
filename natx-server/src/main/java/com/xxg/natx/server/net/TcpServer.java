@@ -14,8 +14,8 @@ public class TcpServer {
 
     public synchronized void bind(int port, ChannelInitializer channelInitializer) throws InterruptedException {
 
-        final EventLoopGroup bossGroup = new NioEventLoopGroup();
-        final EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
             ServerBootstrap b = new ServerBootstrap();

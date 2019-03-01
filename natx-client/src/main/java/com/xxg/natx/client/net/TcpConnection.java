@@ -3,7 +3,6 @@ package com.xxg.natx.client.net;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
@@ -13,20 +12,16 @@ public class TcpConnection {
 
     private Channel channel;
 
-    public synchronized void connect(String host, int port, final ChannelHandler ... handler) throws InterruptedException {
+    public synchronized void connect(String host, int port, ChannelInitializer channelInitializer) throws InterruptedException {
 
-        final NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
             Bootstrap b = new Bootstrap();
             b.group(workerGroup);
             b.channel(NioSocketChannel.class);
-            b.handler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(handler);
-                }
-            });
+            b.handler(channelInitializer);
+
             channel = b.connect(host, port).sync().channel();
             channel.closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
         } catch (Exception e) {

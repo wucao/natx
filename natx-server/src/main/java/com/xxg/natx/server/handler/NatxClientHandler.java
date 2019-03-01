@@ -38,7 +38,7 @@ public class NatxClientHandler extends NatxProxyHandler {
 
                 try {
 
-                    final NatxClientHandler thisNatxClientHandler = this;
+                    NatxClientHandler thisNatxClientHandler = this;
                     remoteConnectionServer.bind(registerInfo.getPort(), new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch)

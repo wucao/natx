@@ -3,6 +3,8 @@ package com.xxg.natx.client;
 import com.xxg.natx.client.handler.NatxServerHandler;
 import com.xxg.natx.client.net.TcpConnection;
 import com.xxg.natx.common.codec.NatxRegisterResultDecoder;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.cli.*;
 
 /**
@@ -58,10 +60,14 @@ public class NatxClient {
                 return;
             }
 
-            NatxServerHandler natxServerHandler = new NatxServerHandler(Integer.parseInt(remotePort), token, proxyAddress, Integer.parseInt(proxyPort));
-
             TcpConnection natxConnection = new TcpConnection();
-            natxConnection.connect(serverAddress, Integer.parseInt(serverPort), new NatxRegisterResultDecoder(), natxServerHandler);
+            natxConnection.connect(serverAddress, Integer.parseInt(serverPort), new ChannelInitializer<SocketChannel>() {
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    NatxServerHandler natxServerHandler = new NatxServerHandler(Integer.parseInt(remotePort), token, proxyAddress, Integer.parseInt(proxyPort));
+                    ch.pipeline().addLast(new NatxRegisterResultDecoder(), natxServerHandler);
+                }
+            });
         }
     }
 }

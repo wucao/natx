@@ -5,6 +5,8 @@ import com.xxg.natx.common.codec.RegisterResultInfo;
 import com.xxg.natx.common.handler.NatxProxyHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
 import org.json.JSONObject;
 
 /**
@@ -53,11 +55,16 @@ public class NatxServerHandler extends NatxProxyHandler {
             } else {
                 System.out.println("Register to Natx server");
 
-                NatxProxyHandler localServerHandler = new NatxProxyHandler();
-                localServerHandler.setNatxProxyHandler(this);
-                this.setNatxProxyHandler(localServerHandler);
-
-                localConnection.connect(proxyAddress, proxyPort, localServerHandler);
+                NatxServerHandler thisHandler = this;
+                localConnection.connect(proxyAddress, proxyPort, new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        NatxProxyHandler localServerHandler = new NatxProxyHandler();
+                        localServerHandler.setNatxProxyHandler(thisHandler);
+                        setNatxProxyHandler(localServerHandler);
+                        ch.pipeline().addLast(localServerHandler);
+                    }
+                });
             }
         } else {
             super.channelRead(ctx, msg);
