@@ -11,7 +11,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public class TcpConnection {
 
-    public void connect(String host, int port, final ChannelHandler ... handler) throws InterruptedException {
+    private Channel channel;
+
+    public synchronized void connect(String host, int port, final ChannelHandler ... handler) throws InterruptedException {
 
         final NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -25,11 +27,17 @@ public class TcpConnection {
                     ch.pipeline().addLast(handler);
                 }
             });
-            ChannelFuture f = b.connect(host, port).sync();
-            f.channel().closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
+            channel = b.connect(host, port).sync().channel();
+            channel.closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
         } catch (Exception e) {
             workerGroup.shutdownGracefully();
             throw e;
+        }
+    }
+
+    public synchronized void close() {
+        if (channel != null) {
+            channel.close();
         }
     }
 }

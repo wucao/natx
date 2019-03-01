@@ -17,6 +17,8 @@ public class NatxServerHandler extends NatxProxyHandler {
     private String proxyAddress;
     private int proxyPort;
 
+    private TcpConnection localConnection = new TcpConnection();;
+
     public NatxServerHandler(int port, String token, String proxyAddress, int proxyPort) {
         this.port = port;
         this.token = token;
@@ -55,11 +57,16 @@ public class NatxServerHandler extends NatxProxyHandler {
                 localServerHandler.setNatxProxyHandler(this);
                 this.setNatxProxyHandler(localServerHandler);
 
-                TcpConnection localConnection = new TcpConnection();
                 localConnection.connect(proxyAddress, proxyPort, localServerHandler);
             }
         } else {
             super.channelRead(ctx, msg);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        localConnection.close();
+        System.out.println("Loss connection to Natx server, Please restart!");
     }
 }
