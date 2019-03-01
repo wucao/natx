@@ -13,18 +13,23 @@ public class TcpConnection {
 
     public void connect(String host, int port, final ChannelHandler ... handler) throws InterruptedException {
 
-        final EventLoopGroup workerGroup = new NioEventLoopGroup();
+        final NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        Bootstrap b = new Bootstrap();
-        b.group(workerGroup);
-        b.channel(NioSocketChannel.class);
-        b.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(handler);
-            }
-        });
-        ChannelFuture f = b.connect(host, port).sync();
-        f.channel().closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
+        try {
+            Bootstrap b = new Bootstrap();
+            b.group(workerGroup);
+            b.channel(NioSocketChannel.class);
+            b.handler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ch.pipeline().addLast(handler);
+                }
+            });
+            ChannelFuture f = b.connect(host, port).sync();
+            f.channel().closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
+        } catch (Exception e) {
+            workerGroup.shutdownGracefully();
+            throw e;
+        }
     }
 }

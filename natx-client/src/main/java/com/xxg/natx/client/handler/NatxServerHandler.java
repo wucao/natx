@@ -1,5 +1,6 @@
 package com.xxg.natx.client.handler;
 
+import com.xxg.natx.client.net.TcpConnection;
 import com.xxg.natx.common.codec.RegisterResultInfo;
 import com.xxg.natx.common.handler.NatxProxyHandler;
 import io.netty.buffer.ByteBuf;
@@ -13,10 +14,14 @@ public class NatxServerHandler extends NatxProxyHandler {
 
     private int port;
     private String token;
+    private String proxyAddress;
+    private int proxyPort;
 
-    public NatxServerHandler(int port, String token) {
+    public NatxServerHandler(int port, String token, String proxyAddress, int proxyPort) {
         this.port = port;
         this.token = token;
+        this.proxyAddress = proxyAddress;
+        this.proxyPort = proxyPort;
     }
 
     @Override
@@ -45,6 +50,13 @@ public class NatxServerHandler extends NatxProxyHandler {
                 ctx.close();
             } else {
                 System.out.println("Register to Natx server");
+
+                NatxProxyHandler localServerHandler = new NatxProxyHandler();
+                localServerHandler.setNatxProxyHandler(this);
+                this.setNatxProxyHandler(localServerHandler);
+
+                TcpConnection localConnection = new TcpConnection();
+                localConnection.connect(proxyAddress, proxyPort, localServerHandler);
             }
         } else {
             super.channelRead(ctx, msg);

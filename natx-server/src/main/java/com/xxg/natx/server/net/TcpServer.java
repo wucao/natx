@@ -17,15 +17,21 @@ public class TcpServer {
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        ServerBootstrap b = new ServerBootstrap();
-        b.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .childHandler(channelInitializer);
-        channel = b.bind(port).sync().channel();
-        channel.closeFuture().addListener((ChannelFutureListener) future -> {
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(channelInitializer);
+            channel = b.bind(port).sync().channel();
+            channel.closeFuture().addListener((ChannelFutureListener) future -> {
+                workerGroup.shutdownGracefully();
+                bossGroup.shutdownGracefully();
+            });
+        } catch (Exception e) {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
-        });
+            throw e;
+        }
     }
 
     public synchronized void close() {

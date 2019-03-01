@@ -3,24 +3,65 @@ package com.xxg.natx.client;
 import com.xxg.natx.client.handler.NatxServerHandler;
 import com.xxg.natx.client.net.TcpConnection;
 import com.xxg.natx.common.codec.NatxRegisterResultDecoder;
-import com.xxg.natx.common.handler.NatxProxyHandler;
+import org.apache.commons.cli.*;
 
 /**
  * Created by wucao on 2019/2/27.
  */
 public class NatxClient {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ParseException {
 
-        NatxServerHandler natxServerHandler = new NatxServerHandler(10001, "123456");
-        NatxProxyHandler localServerHandler = new NatxProxyHandler();
-        natxServerHandler.setNatxProxyHandler(localServerHandler);
-        localServerHandler.setNatxProxyHandler(natxServerHandler);
+        // args
+        Options options = new Options();
+        options.addOption("h", false, "Help");
+        options.addOption("server_addr", true, "Natx server address");
+        options.addOption("server_port", true, "Natx server port");
+        options.addOption("token", true, "Natx server token");
+        options.addOption("proxy_addr", true, "Proxy server address");
+        options.addOption("proxy_port", true, "Proxy server port");
+        options.addOption("remote_port", true, "Proxy server remote port");
 
-        TcpConnection natxConnection = new TcpConnection();
-        natxConnection.connect("localhost", 7732, new NatxRegisterResultDecoder(), natxServerHandler);
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
 
-        TcpConnection localConnection = new TcpConnection();
-        localConnection.connect("localhost", 8000, localServerHandler);
+        if (cmd.hasOption("h")) {
+            // print help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("options", options);
+        } else {
+
+            String serverAddress = cmd.getOptionValue("server_addr");
+            if (serverAddress == null) {
+                System.out.println("server_addr cannot be null");
+                return;
+            }
+            String serverPort = cmd.getOptionValue("server_port");
+            if (serverPort == null) {
+                System.out.println("server_port cannot be null");
+                return;
+            }
+            String token = cmd.getOptionValue("token");
+            String proxyAddress = cmd.getOptionValue("proxy_addr");
+            if (proxyAddress == null) {
+                System.out.println("proxy_addr cannot be null");
+                return;
+            }
+            String proxyPort = cmd.getOptionValue("proxy_port");
+            if (proxyPort == null) {
+                System.out.println("proxy_port cannot be null");
+                return;
+            }
+            String remotePort = cmd.getOptionValue("remote_port");
+            if (remotePort == null) {
+                System.out.println("remote_port cannot be null");
+                return;
+            }
+
+            NatxServerHandler natxServerHandler = new NatxServerHandler(Integer.parseInt(remotePort), token, proxyAddress, Integer.parseInt(proxyPort));
+
+            TcpConnection natxConnection = new TcpConnection();
+            natxConnection.connect(serverAddress, Integer.parseInt(serverPort), new NatxRegisterResultDecoder(), natxServerHandler);
+        }
     }
 }
