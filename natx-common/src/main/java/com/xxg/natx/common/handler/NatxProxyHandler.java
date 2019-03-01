@@ -41,6 +41,12 @@ public class NatxProxyHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println("Exception caught ...");
+        cause.printStackTrace();
+    }
+
     public void writeBytes(byte[] data) throws Exception {
         ByteBuf out = ctx.alloc().buffer(data.length);
         out.writeBytes(data);
