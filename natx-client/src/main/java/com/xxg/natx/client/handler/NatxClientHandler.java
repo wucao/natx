@@ -14,7 +14,6 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,7 +55,6 @@ public class NatxClientHandler extends NatxCommonHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-
         NatxMessage natxMessage = (NatxMessage) msg;
         if (natxMessage.getType() == NatxMessageType.REGISTER_RESULT) {
             processRegisterResult(natxMessage);
@@ -92,21 +90,31 @@ public class NatxClientHandler extends NatxCommonHandler {
     /**
      * if natxMessage.getType() == NatxMessageType.CONNECTED
      */
-    private void processConnected(NatxMessage natxMessage) throws IOException, InterruptedException {
-        NatxClientHandler thisHandler = this;
+    private void processConnected(NatxMessage natxMessage) throws Exception {
 
-        TcpConnection localConnection = new TcpConnection();
+        try {
+            NatxClientHandler thisHandler = this;
+            TcpConnection localConnection = new TcpConnection();
+            localConnection.connect(proxyAddress, proxyPort, new ChannelInitializer<SocketChannel>() {
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    LocalProxyHandler localProxyHandler = new LocalProxyHandler(thisHandler, natxMessage.getMetaData().get("channelId").toString());
+                    ch.pipeline().addLast(new ByteArrayDecoder(), new ByteArrayEncoder(), localProxyHandler);
 
-        localConnection.connect(proxyAddress, proxyPort, new ChannelInitializer<SocketChannel>() {
-            @Override
-            public void initChannel(SocketChannel ch) throws Exception {
-                LocalProxyHandler localProxyHandler = new LocalProxyHandler(thisHandler, natxMessage.getMetaData().get("channelId").toString());
-                ch.pipeline().addLast(new ByteArrayDecoder(), new ByteArrayEncoder(), localProxyHandler);
-
-                channelHandlerMap.put(natxMessage.getMetaData().get("channelId").toString(), localProxyHandler);
-                channelGroup.add(ch);
-            }
-        });
+                    channelHandlerMap.put(natxMessage.getMetaData().get("channelId").toString(), localProxyHandler);
+                    channelGroup.add(ch);
+                }
+            });
+        } catch (Exception e) {
+            NatxMessage message = new NatxMessage();
+            message.setType(NatxMessageType.DISCONNECTED);
+            HashMap<String, Object> metaData = new HashMap<>();
+            metaData.put("channelId", natxMessage.getMetaData().get("channelId"));
+            message.setMetaData(metaData);
+            ctx.writeAndFlush(message);
+            channelHandlerMap.remove(natxMessage.getMetaData().get("channelId"));
+            throw e;
+        }
     }
 
     /**
@@ -114,8 +122,11 @@ public class NatxClientHandler extends NatxCommonHandler {
      */
     private void processDisconnected(NatxMessage natxMessage) {
         String channelId = natxMessage.getMetaData().get("channelId").toString();
-        channelHandlerMap.get(channelId).getCtx().close();
-        channelHandlerMap.remove(channelId);
+        NatxCommonHandler handler = channelHandlerMap.get(channelId);
+        if (handler != null) {
+            handler.getCtx().close();
+            channelHandlerMap.remove(channelId);
+        }
     }
 
     /**
@@ -123,7 +134,10 @@ public class NatxClientHandler extends NatxCommonHandler {
      */
     private void processData(NatxMessage natxMessage) {
         String channelId = natxMessage.getMetaData().get("channelId").toString();
-        ChannelHandlerContext ctx = channelHandlerMap.get(channelId).getCtx();
-        ctx.writeAndFlush(natxMessage.getData());
+        NatxCommonHandler handler = channelHandlerMap.get(channelId);
+        if (handler != null) {
+            ChannelHandlerContext ctx = handler.getCtx();
+            ctx.writeAndFlush(natxMessage.getData());
+        }
     }
 }
