@@ -1,10 +1,12 @@
 package com.xxg.natx.server;
 
-import com.xxg.natx.server.handler.NatxClientHandler;
-import com.xxg.natx.common.codec.NatxRegisterDecoder;
+import com.xxg.natx.common.codec.NatxMessageDecoder;
+import com.xxg.natx.common.codec.NatxMessageEncoder;
+import com.xxg.natx.server.handler.NatxServerHandler;
 import com.xxg.natx.server.net.TcpServer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.commons.cli.*;
 
 /**
@@ -17,8 +19,8 @@ public class NatxServer {
         // args
         Options options = new Options();
         options.addOption("h", false, "Help");
-        options.addOption("p", true, "Natx server port");
-        options.addOption("t", true, "Natx server token");
+        options.addOption("port", true, "Natx server port");
+        options.addOption("password", true, "Natx server password");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
@@ -29,17 +31,17 @@ public class NatxServer {
             formatter.printHelp("options", options);
         } else {
 
-            int port = Integer.parseInt(cmd.getOptionValue("p", "7731"));
-            String token = cmd.getOptionValue("t");
+            int port = Integer.parseInt(cmd.getOptionValue("port", "7731"));
+            String password = cmd.getOptionValue("password");
 
             TcpServer natxClientServer = new TcpServer();
             natxClientServer.bind(port, new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch)
                         throws Exception {
-                    NatxClientHandler natxClientHandler = new NatxClientHandler();
-                    natxClientHandler.setToken(token);
-                    ch.pipeline().addLast(new NatxRegisterDecoder(), natxClientHandler);
+                    NatxServerHandler natxServerHandler = new NatxServerHandler(password);
+                    ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4),
+                            new NatxMessageDecoder(), new NatxMessageEncoder(), natxServerHandler);
                 }
             });
             System.out.println("Natx server started on port " + port);

@@ -1,6 +1,5 @@
 package com.xxg.natx.common.handler;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -9,7 +8,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  */
 public class NatxCommonHandler extends ChannelInboundHandlerAdapter {
 
-    private ChannelHandlerContext ctx;
+    protected ChannelHandlerContext ctx;
+
+    public ChannelHandlerContext getCtx() {
+        return ctx;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -20,11 +23,5 @@ public class NatxCommonHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         System.out.println("Exception caught ...");
         cause.printStackTrace();
-    }
-
-    public void writeBytes(byte[] data) throws Exception {
-        ByteBuf out = ctx.alloc().buffer(data.length);
-        out.writeBytes(data);
-        ctx.writeAndFlush(out);
     }
 }

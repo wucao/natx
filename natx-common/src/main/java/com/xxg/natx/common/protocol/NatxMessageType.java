@@ -1,5 +1,7 @@
 package com.xxg.natx.common.protocol;
 
+import com.xxg.natx.common.exception.NatxException;
+
 import java.util.NoSuchElementException;
 
 /**
@@ -23,12 +25,12 @@ public enum NatxMessageType {
         return code;
     }
 
-    public static NatxMessageType valueOf(int code) {
+    public static NatxMessageType valueOf(int code) throws NatxException {
         for (NatxMessageType item : NatxMessageType.values()) {
             if (item.code == code) {
                 return item;
             }
         }
-        throw new NoSuchElementException("NatxMessageType code error: " + code);
+        throw new NatxException("NatxMessageType code error: " + code);
     }
 }
