@@ -10,6 +10,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
@@ -71,7 +73,7 @@ public class NatxClientHandler extends NatxCommonHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        channelGroup.close(); // TODO 会不会循环close?
+        channelGroup.close();
         System.out.println("Loss connection to Natx server, Please restart!");
     }
 
@@ -99,7 +101,7 @@ public class NatxClientHandler extends NatxCommonHandler {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 LocalProxyHandler localProxyHandler = new LocalProxyHandler(thisHandler, natxMessage.getMetaData().get("channelId").toString());
-                ch.pipeline().addLast(localProxyHandler);
+                ch.pipeline().addLast(new ByteArrayDecoder(), new ByteArrayEncoder(), localProxyHandler);
 
                 channelHandlerMap.put(natxMessage.getMetaData().get("channelId").toString(), localProxyHandler);
                 channelGroup.add(ch);
@@ -112,7 +114,7 @@ public class NatxClientHandler extends NatxCommonHandler {
      */
     private void processDisconnected(NatxMessage natxMessage) {
         String channelId = natxMessage.getMetaData().get("channelId").toString();
-        channelHandlerMap.get(channelId).getCtx().close(); // TODO 会不会循环close?
+        channelHandlerMap.get(channelId).getCtx().close();
         channelHandlerMap.remove(channelId);
     }
 
@@ -121,6 +123,7 @@ public class NatxClientHandler extends NatxCommonHandler {
      */
     private void processData(NatxMessage natxMessage) {
         String channelId = natxMessage.getMetaData().get("channelId").toString();
-        channelHandlerMap.get(channelId).getCtx().write(natxMessage.getData());
+        ChannelHandlerContext ctx = channelHandlerMap.get(channelId).getCtx();
+        ctx.writeAndFlush(natxMessage.getData());
     }
 }

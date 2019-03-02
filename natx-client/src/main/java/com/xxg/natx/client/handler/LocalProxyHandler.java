@@ -3,8 +3,6 @@ package com.xxg.natx.client.handler;
 import com.xxg.natx.common.handler.NatxCommonHandler;
 import com.xxg.natx.common.protocol.NatxMessage;
 import com.xxg.natx.common.protocol.NatxMessageType;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
@@ -24,7 +22,7 @@ public class LocalProxyHandler extends NatxCommonHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        byte[] data = ByteBufUtil.getBytes((ByteBuf) msg);
+        byte[] data = (byte[]) msg;
         NatxMessage message = new NatxMessage();
         message.setType(NatxMessageType.DATA);
         message.setData(data);

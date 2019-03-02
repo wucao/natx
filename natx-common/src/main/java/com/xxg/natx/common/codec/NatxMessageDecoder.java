@@ -5,7 +5,7 @@ import com.xxg.natx.common.protocol.NatxMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.util.CharsetUtil;
 import org.json.JSONObject;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by wucao on 2019/3/2.
  */
-public class NatxMessageDecoder extends ByteToMessageDecoder {
+public class NatxMessageDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List out) throws Exception {
@@ -28,7 +28,10 @@ public class NatxMessageDecoder extends ByteToMessageDecoder {
         JSONObject jsonObject = new JSONObject(metaDataString.toString());
         Map<String, Object> metaData = jsonObject.toMap();
 
-        byte[] data = ByteBufUtil.getBytes(msg);
+        byte[] data = null;
+        if (msg.isReadable()) {
+            data = ByteBufUtil.getBytes(msg);
+        }
 
         NatxMessage natxMessage = new NatxMessage();
         natxMessage.setType(natxMessageType);
