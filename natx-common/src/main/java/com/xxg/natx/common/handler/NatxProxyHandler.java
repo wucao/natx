@@ -3,26 +3,18 @@ package com.xxg.natx.common.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.UnsupportedMessageTypeException;
 import io.netty.util.ReferenceCountUtil;
 
 /**
  * Created by wucao on 2019/2/28.
  */
-public class NatxProxyHandler extends ChannelInboundHandlerAdapter {
-
-    private ChannelHandlerContext ctx;
+public class NatxProxyHandler extends NatxCommonHandler {
 
     private NatxProxyHandler natxProxyHandler;
 
     public void setNatxProxyHandler(NatxProxyHandler natxProxyHandler) {
         this.natxProxyHandler = natxProxyHandler;
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.ctx = ctx;
     }
 
     @Override
@@ -40,17 +32,4 @@ public class NatxProxyHandler extends ChannelInboundHandlerAdapter {
             throw new UnsupportedMessageTypeException("Unsupported message type: " + msg.getClass());
         }
     }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        System.out.println("Exception caught ...");
-        cause.printStackTrace();
-    }
-
-    public void writeBytes(byte[] data) throws Exception {
-        ByteBuf out = ctx.alloc().buffer(data.length);
-        out.writeBytes(data);
-        ctx.writeAndFlush(out);
-    }
-
 }
