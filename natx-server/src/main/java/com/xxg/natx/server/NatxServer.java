@@ -7,6 +7,7 @@ import com.xxg.natx.server.net.TcpServer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.cli.*;
 
 /**
@@ -41,7 +42,8 @@ public class NatxServer {
                         throws Exception {
                     NatxServerHandler natxServerHandler = new NatxServerHandler(password);
                     ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4),
-                            new NatxMessageDecoder(), new NatxMessageEncoder(), natxServerHandler);
+                            new NatxMessageDecoder(), new NatxMessageEncoder(),
+                            new IdleStateHandler(60, 30, 0), natxServerHandler);
                 }
             });
             System.out.println("Natx server started on port " + port);

@@ -7,6 +7,7 @@ import com.xxg.natx.common.codec.NatxMessageEncoder;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.cli.*;
 
 /**
@@ -69,7 +70,8 @@ public class NatxClient {
                     NatxClientHandler natxClientHandler = new NatxClientHandler(Integer.parseInt(remotePort), password,
                             proxyAddress, Integer.parseInt(proxyPort));
                     ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4),
-                            new NatxMessageDecoder(), new NatxMessageEncoder(), natxClientHandler);
+                            new NatxMessageDecoder(), new NatxMessageEncoder(),
+                            new IdleStateHandler(60, 30, 0), natxClientHandler);
                 }
             });
         }

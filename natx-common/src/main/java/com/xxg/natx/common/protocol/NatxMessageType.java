@@ -2,8 +2,6 @@ package com.xxg.natx.common.protocol;
 
 import com.xxg.natx.common.exception.NatxException;
 
-import java.util.NoSuchElementException;
-
 /**
  * Created by wucao on 2019/3/2.
  */
@@ -13,7 +11,8 @@ public enum NatxMessageType {
     REGISTER_RESULT(2),
     CONNECTED(3),
     DISCONNECTED(4),
-    DATA(5);
+    DATA(5),
+    KEEPALIVE(6);
 
     private int code;
 

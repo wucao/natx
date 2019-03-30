@@ -29,6 +29,7 @@ public class TcpConnection {
             Bootstrap b = new Bootstrap();
             b.group(workerGroup);
             b.channel(NioSocketChannel.class);
+            b.option(ChannelOption.SO_KEEPALIVE, true);
             b.handler(channelInitializer);
 
             channel = b.connect(host, port).sync().channel();

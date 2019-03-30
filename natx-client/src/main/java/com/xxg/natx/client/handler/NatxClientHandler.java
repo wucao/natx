@@ -64,6 +64,8 @@ public class NatxClientHandler extends NatxCommonHandler {
             processDisconnected(natxMessage);
         } else if (natxMessage.getType() == NatxMessageType.DATA) {
             processData(natxMessage);
+        } else if (natxMessage.getType() == NatxMessageType.KEEPALIVE) {
+            // 心跳包, 不处理
         } else {
             throw new NatxException("Unknown type: " + natxMessage.getType());
         }

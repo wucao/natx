@@ -1,5 +1,6 @@
 package com.xxg.natx.server.handler;
 
+import com.xxg.natx.common.exception.NatxException;
 import com.xxg.natx.common.handler.NatxCommonHandler;
 import com.xxg.natx.common.protocol.NatxMessage;
 import com.xxg.natx.common.protocol.NatxMessageType;
@@ -44,6 +45,10 @@ public class NatxServerHandler extends NatxCommonHandler {
                 processDisconnected(natxMessage);
             } else if (natxMessage.getType() == NatxMessageType.DATA) {
                 processData(natxMessage);
+            } else if (natxMessage.getType() == NatxMessageType.KEEPALIVE) {
+                // 心跳包, 不处理
+            } else {
+                throw new NatxException("Unknown type: " + natxMessage.getType());
             }
         } else {
             ctx.close();
