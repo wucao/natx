@@ -5,7 +5,7 @@ Natx 包含服务端和客户端两部分，服务端运行在带有公网 IP �
 
 由于大部分联网设备只有内网 IP ，例如大部分家庭宽带，我们在本地启动的网络应用无法对外提供访问，这种场景下可以使用 Natx 将本地网络地址映射到外网，对外提供访问。
 
-下载： https://github.com/wucao/natx/releases/tag/v1.0.1
+下载： https://github.com/wucao/natx/releases/tag/v1.0.2
 
 ## 启动
 ### 服务端启动
