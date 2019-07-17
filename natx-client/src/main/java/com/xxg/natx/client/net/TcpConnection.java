@@ -12,8 +12,6 @@ import java.io.IOException;
  */
 public class TcpConnection {
 
-    private Channel channel;
-
     /**
      *
      * @param host
@@ -21,7 +19,7 @@ public class TcpConnection {
      * @param channelInitializer
      * @throws InterruptedException
      */
-    public void connect(String host, int port, ChannelInitializer channelInitializer) throws InterruptedException, IOException {
+    public ChannelFuture connect(String host, int port, ChannelInitializer channelInitializer) throws InterruptedException, IOException {
 
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -32,8 +30,8 @@ public class TcpConnection {
             b.option(ChannelOption.SO_KEEPALIVE, true);
             b.handler(channelInitializer);
 
-            channel = b.connect(host, port).sync().channel();
-            channel.closeFuture().addListener((ChannelFutureListener) future -> workerGroup.shutdownGracefully());
+            Channel channel = b.connect(host, port).sync().channel();
+            return channel.closeFuture().addListener(future -> workerGroup.shutdownGracefully());
         } catch (Exception e) {
             workerGroup.shutdownGracefully();
             throw e;
