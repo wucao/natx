@@ -35,7 +35,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.xxg.natx.client.NatxClient</mainClass>
+                                    <mainClass>com.xxg.natx.client.NatxClientStarter</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
