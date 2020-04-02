@@ -28,7 +28,7 @@ public class NatxClientHandler extends NatxCommonHandler {
     private int proxyPort;
 
     private ConcurrentHashMap<String, NatxCommonHandler> channelHandlerMap = new ConcurrentHashMap<>();
-    private static ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    private ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public NatxClientHandler(int port, String password, String proxyAddress, int proxyPort) {
         this.port = port;

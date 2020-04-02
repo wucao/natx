@@ -6,7 +6,7 @@
     <parent>
         <artifactId>natx</artifactId>
         <groupId>com.xxg</groupId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.xxg</groupId>
             <artifactId>natx-common</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
     </dependencies>
 
@@ -35,7 +35,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.xxg.natx.server.NatxServer</mainClass>
+                                    <mainClass>com.xxg.natx.server.NatxServerStarter</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
